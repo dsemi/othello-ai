@@ -5,7 +5,7 @@ from numpy import argmax
 
 
 def pick_depth(x):
-    return floor(7.85726*exp(-0.0710464*x))+1
+    return 6 #floor(7.85726*exp(-0.0710464*x))+1
 
 
 def cross(A,B):
@@ -43,13 +43,12 @@ class Board:
             -1: moves(self.brd, -1)}
         self.heur,self.terminal = self._heur()
 
-
     def _heur(self):
         winner = check4win(self.brd)
         if winner:
             return (0,winner*float('inf'))[winner == 1 or winner == -1],True
         h = 0
-        h += (len(self.avail_moves[1]) - len(self.avail_moves[-1]))*3
+        h += (len(self.avail_moves[1]) - len(self.avail_moves[-1]))*2
         for k,v in self.brd.items():
             if v:
                 h += v*(10 if k[0] in 'AH' else 1)
@@ -116,10 +115,13 @@ def check4win(b):
     else:
         return 3
 
-
+# Final attempt before switching to reinforcement learning
+# switch back to minimax cutoff (no alpha beta) and thread
 def pvs(n, d, alpha, beta, player):
-    if d == 0 or n.terminal or not n.avail_moves[player]:
+    if d == 0 or n.terminal:
         return player*n.heur
+    elif not n.avail_moves[player] and player == comp_num:
+        return 10000000
     b = beta
     count = 0
     if d == depth:
@@ -159,8 +161,7 @@ def computermove(board):
     print 'Possible moves: %d, Depth: %d' % (len(children),depth)
     poss_moves = pvs(brd, depth, -float('inf'), float('inf'), comp_num)
 
-    if moves_left < 10:
-        print poss_moves
+    print poss_moves
 
     optimal_move = children[argmax(poss_moves)]
 
