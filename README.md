@@ -1,0 +1,1 @@
+A little AI for othello
